@@ -6,6 +6,8 @@ const User = require("../models/usersModel");
 // Importa bcrypt para encriptar contraseñas
 const bcrypt = require("bcrypt");
 
+const mongoose = require("mongoose");
+
 // Crea un nuevo usuario en la base de datos
 const createUsuario = async (req, res) => {
     const { name, email, password } = req.body;
@@ -61,5 +63,65 @@ const listarUsuarios = async (req, res) => {
     }
 };
 
+// ✅ Eliminar un usuario por ID
+const eliminarUsuarios = async (req, res) => {
+  const { id } = req.params;
+
+  // Validar que el ID sea un ObjectId válido de MongoDB
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "ID inválido" });
+  }
+
+  try {
+    // Buscar y eliminar el usuario
+    const usuarioEliminado = await User.findByIdAndDelete(id);
+
+    if (!usuarioEliminado) {
+      return res.status(404).json({ message: "Usuario no encontrado" });
+    }
+
+    res.status(200).json({ message: "Usuario eliminado correctamente" });
+  } catch (error) {
+    console.error("Error al eliminar usuario:", error);
+    res.status(500).json({ message: "Error interno del servidor" });
+  }
+};
+
+
+// Controlador para editar un usuario
+const editarUsuario = async (req, res) => {
+    const { id } = req.params;
+    const { name, email, password } = req.body;
+
+    try {
+        const usuarioExistente = await User.findById(id);
+        if (!usuarioExistente) {
+            return res.status(404).json({ message: "Usuario no encontrado" });
+        }
+
+        // Solo actualizamos si se envían nuevos datos
+        if (name) usuarioExistente.name = name;
+        if (email) usuarioExistente.email = email;
+        if (password) {
+            const hash = await bcrypt.hash(password, 10);
+            usuarioExistente.password = hash;
+        }
+
+        const usuarioActualizado = await usuarioExistente.save();
+
+        const { _id, name: nombre, email: correo } = usuarioActualizado;
+
+        res.json({
+            message: "Usuario actualizado correctamente",
+            usuario: { id: _id, name: nombre, email: correo }
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: "Error al actualizar usuario", error: error.message });
+    }
+};
+
+
+
 // Exporta ambas funciones para que puedan ser usadas en las rutas
-module.exports = { createUsuario, listarUsuarios };
+module.exports = { createUsuario, listarUsuarios, eliminarUsuarios, editarUsuario};
