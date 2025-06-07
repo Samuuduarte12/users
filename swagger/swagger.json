@@ -1,3 +1,4 @@
+
  {
   "swagger": "2.0",
   "info": {
@@ -7,15 +8,15 @@
   "paths": {
     "/users": {
       "get": {
-        "summary": "Lista todos os usuários",
+        "summary": "Lista de  todos los usuarios",
         "responses": {
           "200": {
-            "description": "Lista de usuários"
+            "description": "Lista de usuarios"
           }
         }
       },
       "post": {
-        "summary": "Cria um novo usuário",
+        "summary": "Crear un nuevo ususario",
         "parameters": [
           {
             "name": "body",
@@ -32,7 +33,7 @@
           }
         ],
         "responses": {
-          "201": { "description": "Usuário criado com sucesso" }
+          "201": { "description": "Usuário crreado con exito" }
         }
       }
     }
